@@ -7,23 +7,25 @@ import (
 	"fmt"
 
 	"github.com/anton-uvarenko/backend_school/internal/pkg"
-	"github.com/anton-uvarenko/backend_school/internal/pkg/currency"
-	"github.com/anton-uvarenko/backend_school/internal/pkg/email"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type EmailService struct {
 	emailRepo         emailRepo
-	emailSender       *email.EmailSender
-	currencyConverter *currency.CurrencyConverter
+	emailSender       emailSender
+	currencyConverter currencyConverter
 }
 
-func NewEmailService(emailRepo emailRepo, sender *email.EmailSender, converter *currency.CurrencyConverter) *EmailService {
+func NewEmailService(emailRepo emailRepo, sender emailSender, converter currencyConverter) *EmailService {
 	return &EmailService{
 		emailSender:       sender,
 		emailRepo:         emailRepo,
 		currencyConverter: converter,
 	}
+}
+
+type emailSender interface {
+	SendEmail(To string, message string) error
 }
 
 type emailRepo interface {
@@ -36,6 +38,7 @@ func (s *EmailService) AddEmail(ctx context.Context, email string) error {
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
+			// duplicate key
 			err := err.(*pgconn.PgError)
 			if err.Code == "23505" {
 				return pkg.ErrEmailConflict

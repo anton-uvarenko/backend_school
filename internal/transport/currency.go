@@ -23,6 +23,7 @@ type currencyService interface {
 func (h *CurrencyHandler) Rate(ctx *gin.Context) {
 	rate, err := h.currencyService.Rate()
 	if err != nil {
+		// commeted because documentation doesn't expect this
 		// if errors.Is(err, pkg.ErrCurrencyNotFound) {
 		// 	ctx.AbortWithStatus(http.StatusNotFound)
 		// 	return

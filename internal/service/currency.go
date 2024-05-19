@@ -4,14 +4,17 @@ import (
 	"fmt"
 
 	"github.com/anton-uvarenko/backend_school/internal/pkg"
-	"github.com/anton-uvarenko/backend_school/internal/pkg/currency"
 )
 
 type CurrencyService struct {
-	converter *currency.CurrencyConverter
+	converter currencyConverter
 }
 
-func NewCurrencySevice(converter *currency.CurrencyConverter) *CurrencyService {
+type currencyConverter interface {
+	GetUAHToUSD() (float32, error)
+}
+
+func NewCurrencySevice(converter currencyConverter) *CurrencyService {
 	return &CurrencyService{
 		converter: converter,
 	}
