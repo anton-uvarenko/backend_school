@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/anton-uvarenko/backend_school/internal/core"
 	"github.com/anton-uvarenko/backend_school/internal/db"
@@ -31,5 +34,13 @@ func main() {
 	server.RegisterJobs(scheduler, service.EmailService)
 	scheduler.Start()
 
-	httpServer.ListenAndServe()
+	go httpServer.ListenAndServe()
+
+	finish := make(chan os.Signal, 1)
+	signal.Notify(finish, os.Interrupt, syscall.SIGTERM)
+
+	<-finish
+
+	scheduler.Shutdown()
+	conn.Close(context.Background())
 }
